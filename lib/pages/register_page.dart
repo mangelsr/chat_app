@@ -1,8 +1,12 @@
-import 'package:chat_app/widgets/main_button.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:chat_app/helpers/show_dialog.dart';
+import 'package:chat_app/services/auth_service.dart';
 import 'package:chat_app/widgets/custom_input.dart';
 import 'package:chat_app/widgets/labels.dart';
 import 'package:chat_app/widgets/logo.dart';
+import 'package:chat_app/widgets/main_button.dart';
 
 class RegisterPage extends StatelessWidget {
   Widget build(BuildContext context) {
@@ -55,6 +59,7 @@ class __FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -80,10 +85,22 @@ class __FormState extends State<_Form> {
           ),
           MainButton(
             text: 'Register',
-            callback: () {
-              print(emailController.text);
-              print(passwordController.text);
-            },
+            callback: authService.isAuthenticating
+                ? null
+                : () async {
+                    FocusScope.of(context).unfocus();
+                    final bool result = await authService.register(
+                      nameController.text,
+                      emailController.text,
+                      passwordController.text,
+                    );
+                    if (result) {
+                      Navigator.pushReplacementNamed(context, 'users');
+                    } else {
+                      showCustomDialog(
+                          context, 'Register Error', authService.authError);
+                    }
+                  },
           )
         ],
       ),

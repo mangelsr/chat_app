@@ -1,4 +1,6 @@
+import 'package:chat_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:chat_app/models/user.dart';
 
@@ -18,10 +20,11 @@ class _UsersPageState extends State<UsersPage> {
       RefreshController(initialRefresh: false);
 
   Widget build(BuildContext context) {
+    final AuthService authService = Provider.of<AuthService>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'My name',
+          authService.user.name,
           style: TextStyle(
             color: Colors.black54,
           ),
@@ -33,7 +36,11 @@ class _UsersPageState extends State<UsersPage> {
             Icons.exit_to_app,
             color: Colors.black54,
           ),
-          onPressed: () {},
+          onPressed: () {
+            // TODO: Disconect sockets
+            Navigator.pushReplacementNamed(context, 'login');
+            AuthService.deleteToken();
+          },
         ),
         actions: [
           Container(
